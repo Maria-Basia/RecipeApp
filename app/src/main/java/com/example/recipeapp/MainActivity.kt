@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.recipeapp.ui.theme.RecipeAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,15 +23,44 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipeAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    App()
                 }
             }
         }
     }
 }
+
+@Composable
+fun App() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "home") {
+
+        composable(route = "home") {
+            Homescreen()
+        }
+
+        composable(route = "recipe/{id}") {
+            RecipeScreen()
+        }
+
+        composable(route = "add") {
+            AddRecipeScreen()
+        }
+
+    }
+}
+
+@Composable
+fun HomeScreen() {
+
+
+
+}
+
+
+
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
