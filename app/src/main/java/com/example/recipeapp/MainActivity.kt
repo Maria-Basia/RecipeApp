@@ -20,7 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +58,10 @@ fun App() {
         }
 
         composable(route = "recipe/{id}") {
-            RecipeScreen()
+            val id = it.arguments?.getString("id")?.toInt()
+            if (id != null) {
+                RecipeScreen(id)
+            }
         }
 
         composable(route = "add") {
@@ -66,18 +71,19 @@ fun App() {
     }
 }
 
+var recipeArr: Array<Recipes> = arrayOf(
+    Recipes(0,"Test", "", "60", "2",
+        arrayOf("2 tomatoes, 3 potatoes"),
+        "idkdsffesdfges"
+    ),
+    Recipes(1,"Test 2", "", "80", "2",
+        arrayOf("3 tomatoes", "2 potatoes"),
+        "idkidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkds"
+    )
+)
+
 @Composable
 fun HomeScreen(onNextScreen: (Int) -> Unit) {
-    var recipeArr: Array<Recipes> = arrayOf(
-        Recipes(1,"Test", "", "60", 2,
-            arrayOf("2 tomatoes, 3 potatoes"),
-            "idkdsffesdfges"
-        ),
-        Recipes(2,"Test 2", "", "80", 2,
-            arrayOf("3 tomatoes, 2 potatoes"),
-            "idkidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkds"
-        )
-    )
 
     Column (modifier = Modifier
         .fillMaxSize()
@@ -100,12 +106,31 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
 
 
 @Composable
-fun RecipeScreen() {
-Box(modifier = Modifier) {
-
-}
-
-
+fun RecipeScreen(id: Int) {
+    val recipe = recipeArr[id]
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp, 70.dp, 10.dp, 10.dp)
+    ) {
+        Text(text = recipe.title,
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
+        Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Ingredients:")
+        for (i in recipe.ingredients) {
+            Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
+            }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Description:\n${recipe.description}")
+    }
 }
 
 
@@ -121,17 +146,9 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 //
 //            }
             Text(text = recipe.title)
-            Text(text = recipe.duration)
-            Text(text = truncateDescription(recipe.description))
+            Text(text = "Duration: ${recipe.duration} minutes")
+            Text(text = recipe.truncateDescription())
         }
-    }
-}
-
-fun truncateDescription(description: String): String {
-    if (description.length >= 50) {
-        return description.substring(0..49) + "..."
-    } else {
-        return description
     }
 }
 
