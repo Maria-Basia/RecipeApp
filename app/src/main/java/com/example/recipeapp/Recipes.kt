@@ -2,11 +2,11 @@ package com.example.recipeapp
 
 class Recipes (
     val id: Int,
+    val image: Int = R.drawable.recipe1,
     var title: String,
-    var img: String,
     var duration: String,
     var servings: String,
-    var ingredients: Array<String>,
+    var ingredients: Array<String> = arrayOf("2 lemons", "3 cucumbers", "4 carrots"),
     var description: String
 ) {
     fun truncateDescription(): String {

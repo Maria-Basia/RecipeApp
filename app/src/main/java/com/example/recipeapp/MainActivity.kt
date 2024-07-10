@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +14,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,18 +79,18 @@ fun App() {
         }
 
         composable(route = "add") {
-            // AddRecipeScreen()
+             AddRecipeScreen()
         }
 
     }
 }
 
 var recipeArr: Array<Recipes> = arrayOf(
-    Recipes(0,"Test", "", "60", "2",
+    Recipes(0,R.drawable.recipe1,"Test", "60", "2",
         arrayOf("2 tomatoes, 3 potatoes"),
         "idkdsffesdfges"
     ),
-    Recipes(1,"Test 2", "", "80", "2",
+    Recipes(1,R.drawable.recipe1,"Test 2", "80", "2",
         arrayOf("3 tomatoes", "2 potatoes"),
         "idkidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkds"
     )
@@ -87,9 +101,10 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
 
     Column (modifier = Modifier
         .fillMaxSize()
-        .padding(10.dp),
+        .padding(10.dp, 50.dp, 10.dp, 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(text = "Our App",
             modifier = Modifier
                 .padding(10.dp),
@@ -99,6 +114,9 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
         for (recipe in recipeArr) {
             MakeCard(recipe, onNextScreen)
             Spacer(modifier = Modifier.height(8.dp))
+        }
+        Button(onClick = { /*TODO*/ }) {
+            
         }
     }
 
@@ -121,17 +139,47 @@ fun RecipeScreen(id: Int) {
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        Image(painter = painterResource(id =recipe.image) , contentDescription = "Recipe photo", modifier = Modifier.align(Alignment.CenterHorizontally) )
+        Spacer(modifier = Modifier.height(20.dp))
         Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
         Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Ingredients:")
+        Text(text = "Ingredients:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
         for (i in recipe.ingredients) {
             Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
             }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Description:\n${recipe.description}")
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
+        Text(text = recipe.description)
     }
 }
+
+
+@Composable
+fun AddRecipeScreen() {
+    var titleInput by remember { mutableStateOf("") }
+    var durationInput by remember { mutableStateOf("") }
+    var servingsInput by remember { mutableStateOf("") }
+//    val ingredientsInput by remember { mutableStateOf(arrayOf()) }
+    var descriptionInput by remember { mutableStateOf("") }
+
+    Column {
+        Text(text = "Add recipe")
+        OutlinedTextField(value = titleInput, onValueChange = {titleInput = it}, label = {Text("Recipe name:")})
+        OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
+        OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
+        OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
+        Button(onClick = { var recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, description = descriptionInput)}) {
+            
+        }
+
+
+    }
+
+}
+
+
 
 
 @Composable
@@ -142,11 +190,18 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-//            Row {
-//
-//            }
-            Text(text = recipe.title)
-            Text(text = "Duration: ${recipe.duration} minutes")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(painter = painterResource(id =recipe.image), contentDescription = "Image thumbnail", modifier = Modifier
+                    .size(60.dp)
+                    .clip(
+                        RoundedCornerShape(7.dp)
+                    ), contentScale = ContentScale.FillBounds )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = recipe.title, modifier = Modifier, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic, fontSize = 15.sp)
+            Spacer(modifier = Modifier.height(10.dp))
             Text(text = recipe.truncateDescription())
         }
     }
@@ -159,6 +214,8 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-        App()
+//        App()
+//        RecipeScreen(id = 1)
+        AddRecipeScreen()
     }
 }
