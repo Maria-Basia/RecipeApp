@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipeAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    App()
+                    //App()
                 }
             }
         }
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "add") {
 
         composable(route = "home") {
             HomeScreen(onNextScreen = { id: Int ->
@@ -79,18 +79,18 @@ fun App() {
         }
 
         composable(route = "add") {
-             AddRecipeScreen()
+             AddRecipeScreen(onNextScreen = { navController.navigate("home") })
         }
 
     }
 }
 
 var recipeArr: Array<Recipes> = arrayOf(
-    Recipes(0,R.drawable.recipe1,"Test", "60", "2",
+    Recipes(0, R.drawable.recipe1,"Test", "60", "2",
         arrayOf("2 tomatoes, 3 potatoes"),
         "idkdsffesdfges"
     ),
-    Recipes(1,R.drawable.recipe1,"Test 2", "80", "2",
+    Recipes(1, R.drawable.recipe1,"Test 2", "80", "2",
         arrayOf("3 tomatoes", "2 potatoes"),
         "idkidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkds"
     )
@@ -157,7 +157,7 @@ fun RecipeScreen(id: Int) {
 
 
 @Composable
-fun AddRecipeScreen() {
+fun AddRecipeScreen(onNextScreen: () -> Unit) {
     var titleInput by remember { mutableStateOf("") }
     var durationInput by remember { mutableStateOf("") }
     var servingsInput by remember { mutableStateOf("") }
@@ -170,11 +170,10 @@ fun AddRecipeScreen() {
         OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
         OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
         OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
-        Button(onClick = { var recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, description = descriptionInput)}) {
-            
+        Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, description = descriptionInput)
+        recipeArr += recipe; onNextScreen() }) {
+            Text(text = "Add Recipe")
         }
-
-
     }
 
 }
@@ -191,7 +190,7 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
                 .padding(10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(painter = painterResource(id =recipe.image), contentDescription = "Image thumbnail", modifier = Modifier
+                Image(painter = painterResource(id = recipe.image), contentDescription = "Image thumbnail", modifier = Modifier
                     .size(60.dp)
                     .clip(
                         RoundedCornerShape(7.dp)
@@ -214,8 +213,8 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-//        App()
+        App()
 //        RecipeScreen(id = 1)
-        AddRecipeScreen()
+//        AddRecipeScreen()
     }
 }
