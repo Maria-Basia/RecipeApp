@@ -181,8 +181,8 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
             }
         }
     )
-    Column {
-        Text(text = "Add recipe")
+    Column(modifier = Modifier.padding(20.dp)) {
+        Text(text = "Add your recipe", modifier = Modifier, fontSize = 20.sp, )
         imageUri?.let {
             Image(
                 painter = rememberAsyncImagePainter(model = imageUri),
