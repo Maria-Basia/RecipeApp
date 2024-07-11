@@ -186,6 +186,7 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
             Text(text = "Edit Recipe")
         }
     }
+    }
 }
 
 
@@ -212,27 +213,27 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
         TopBar()
         Column(modifier = Modifier.padding(20.dp)) {
             if (id != null) {
-            Text(
-                text = "Add your recipe",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.SansSerif,
-                textAlign = TextAlign.Center
-            )
+                Text(
+                    text = "Edit your recipe",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.SansSerif,
+                    textAlign = TextAlign.Center
+                )
         } else {
-            Text(
-                text = "Edit your recipe",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.SansSerif,
-                textAlign = TextAlign.Center
-            )
+                Text(
+                    text = "Add your recipe",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.SansSerif,
+                    textAlign = TextAlign.Center
+                )
         }
             imageUri?.let {
                 Image(
@@ -383,7 +384,5 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 fun GreetingPreview() {
     RecipeAppTheme {
 //        App()
-        RecipeScreen(id = 1)
-//       AddRecipeScreen()
     }
 }
