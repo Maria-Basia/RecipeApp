@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipeAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    //App()
+                    App()
                 }
             }
         }
@@ -116,7 +116,7 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
         }
         Button(onClick = { /*TODO*/ }) {
-            
+
         }
     }
 
@@ -161,16 +161,21 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
     var titleInput by remember { mutableStateOf("") }
     var durationInput by remember { mutableStateOf("") }
     var servingsInput by remember { mutableStateOf("") }
-//    val ingredientsInput by remember { mutableStateOf(arrayOf()) }
+    var singleIngredientInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
+    var allIngredients: Array<String> = arrayOf()
 
     Column {
         Text(text = "Add recipe")
         OutlinedTextField(value = titleInput, onValueChange = {titleInput = it}, label = {Text("Recipe name:")})
         OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
         OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
+        OutlinedTextField(value = singleIngredientInput, onValueChange ={singleIngredientInput = it}, label = {Text("Ingredients:")} )
+        Button(onClick = {allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println("this is the list ingredient $allIngredients"); singleIngredientInput = "" }){
+            Text(text = "Add ingredient")
+        }
         OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
-        Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, description = descriptionInput)
+        Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, ingredients = allIngredients, description = descriptionInput)
         recipeArr += recipe; onNextScreen() }) {
             Text(text = "Add Recipe")
         }
@@ -213,8 +218,8 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-        App()
+//        App()
 //        RecipeScreen(id = 1)
-//        AddRecipeScreen()
+        AddRecipeScreen()
     }
 }
