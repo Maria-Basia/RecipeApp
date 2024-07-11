@@ -1,9 +1,12 @@
 package com.example.recipeapp
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -23,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.recipeapp.ui.theme.RecipeAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -147,6 +153,7 @@ fun RecipeScreen(id: Int) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Ingredients:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
         for (i in recipe.ingredients) {
+            Text(text = i)
             Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
             }
         Spacer(modifier = Modifier.height(10.dp))
@@ -163,10 +170,38 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
     var servingsInput by remember { mutableStateOf("") }
     var singleIngredientInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var allIngredients by remember { mutableStateOf(arrayOf<String>()) }
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                imageUri = it
+            }
+        }
+    )
     Column {
         Text(text = "Add recipe")
+        imageUri?.let {
+            Image(
+                painter = rememberAsyncImagePainter(model = imageUri),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(36.dp)
+            )
+        }
+
+        TextButton(
+            onClick = {
+                galleryLauncher.launch("image/*")
+            }
+        ) {
+            Text(
+                text = "Pick image"
+            )
+        }
         OutlinedTextField(value = titleInput, onValueChange = {titleInput = it}, label = {Text("Recipe name:")})
         OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
         OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
@@ -176,7 +211,7 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
         }
         OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
         Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, ingredients = allIngredients, description = descriptionInput)
-        recipeArr += recipe; onNextScreen() }) {
+        recipeArr += recipe; println("LIST  OF INGREDIENTS ${allIngredients.size}"); onNextScreen() }) {
             Text(text = "Add Recipe")
         }
     }
@@ -218,7 +253,8 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-//        App()
-//        RecipeScreen(id = 1)
+        App()
+//        RecipeScreen(id = 3)
+//       AddRecipeScreen()
     }
 }
