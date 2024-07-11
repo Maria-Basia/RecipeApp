@@ -170,8 +170,8 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
     var servingsInput by remember { mutableStateOf("") }
     var singleIngredientInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
-    var allIngredients: Array<String> = arrayOf()
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var allIngredients by remember { mutableStateOf(arrayOf<String>()) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -206,7 +206,7 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
         OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
         OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
         OutlinedTextField(value = singleIngredientInput, onValueChange ={singleIngredientInput = it}, label = {Text("Ingredients:")} )
-        Button(onClick = {allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println("this is the list ingredient $allIngredients"); singleIngredientInput = "" }){
+        Button(onClick = {allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println("this is the list ingredient ${allIngredients.size}"); singleIngredientInput = "" }){
             Text(text = "Add ingredient")
         }
         OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
