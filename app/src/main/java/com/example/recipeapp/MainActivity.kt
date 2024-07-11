@@ -74,12 +74,12 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "add") {
+    NavHost(navController = navController, startDestination = "home") {
 
         composable(route = "home") {
             HomeScreen(onNextScreen = { id: Int ->
                 navController.navigate("recipe/$id")
-            })
+            }, onNextScreenAdd = { navController.navigate("add")})
         }
 
         composable(route = "recipe/{id}") {
@@ -108,62 +108,78 @@ var recipeArr: Array<Recipes> = arrayOf(
 )
 
 @Composable
-fun HomeScreen(onNextScreen: (Int) -> Unit) {
+fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
 
-    Column (modifier = Modifier
-        .fillMaxSize()
-        .padding(10.dp, 50.dp, 10.dp, 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Text(text = "Our App",
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopBar()
+        Column(
             modifier = Modifier
-                .padding(10.dp),
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold
-            )
-        for (recipe in recipeArr) {
-            MakeCard(recipe, onNextScreen)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        Button(onClick = { /*TODO*/ }) {
+                .fillMaxSize()
+                .padding(20.dp, 20.dp, 20.dp, 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
+            Text(
+                text = "My recipies",
+                modifier = Modifier
+                    .padding(bottom = 30.dp),
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold
+            )
+            for (recipe in recipeArr) {
+                MakeCard(recipe, onNextScreen)
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+            Button(
+                onClick = onNextScreenAdd,
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
+                    containerColor = Color(0xFF3EA295)
+                )
+            ) {
+                Text(text = "Add recipe")
+            }
         }
     }
-
 }
-
 
 @Composable
 fun RecipeScreen(id: Int) {
     val recipe = recipeArr[id]
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp, 70.dp, 10.dp, 10.dp)
-    ) {
-        Text(text = recipe.title,
+    Column(modifier = Modifier.fillMaxSize().padding()) {
+        TopBar()
+        Column(
             modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Image(painter = painterResource(id =recipe.image) , contentDescription = "Recipe photo", modifier = Modifier.align(Alignment.CenterHorizontally) )
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
-        Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Ingredients:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
-        for (i in recipe.ingredients) {
-            Text(text = i)
-            Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
+                .fillMaxWidth()
+                .padding(10.dp, 10.dp, 10.dp, 10.dp)
+        ) {
+            Text(
+                text = recipe.title,
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Image(
+                painter = painterResource(id = recipe.image),
+                contentDescription = "Recipe photo",
+                modifier = Modifier.align(Alignment.CenterHorizontally).clip(RoundedCornerShape(10.dp))
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
+            Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = "Ingredients:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
+            for (i in recipe.ingredients) {
+                Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
             }
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
-        Text(text = recipe.description)
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
+            Text(text = recipe.description)
+        }
     }
 }
 
@@ -187,24 +203,13 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
         }
     )
     Column(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(Color(0xFF3EA295))
-        ) {
-            Text(
-                text = "Recipe App",
-                color = Color.White,
-                modifier = Modifier.align(Alignment.Center),
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        }
+        TopBar()
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = "Add your recipe",
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
@@ -308,7 +313,23 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
 }
 
 
-
+@Composable
+fun TopBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(Color(0xFF3EA295))
+    ) {
+        Text(
+            text = "Recipe App",
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center),
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+    }
+}
 
 @Composable
 fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
@@ -342,8 +363,8 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-        App()
-//        RecipeScreen(id = 3)
+//        App()
+        RecipeScreen(id = 1)
 //       AddRecipeScreen()
     }
 }
