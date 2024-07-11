@@ -8,8 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,11 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,19 +65,26 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "add") {
+    NavHost(navController = navController, startDestination = "home") {
 
         composable(route = "home") {
             HomeScreen(onNextScreen = { id: Int ->
                 navController.navigate("recipe/$id")
+            }, jumpToAdd = {
+                navController.navigate("add")
             })
         }
 
         composable(route = "recipe/{id}") {
             val id = it.arguments?.getString("id")?.toInt()
             if (id != null) {
-                RecipeScreen(id)
+                RecipeScreen(onNextScreen = { navController.navigate("edit/$id") }, id)
             }
+        }
+
+        composable(route = "edit/{id}") {
+            val id = it.arguments?.getString("id")?.toInt()
+            AddRecipeScreen(onNextScreen = { navController.navigate("home") }, id)
         }
 
         composable(route = "add") {
@@ -103,7 +106,7 @@ var recipeArr: Array<Recipes> = arrayOf(
 )
 
 @Composable
-fun HomeScreen(onNextScreen: (Int) -> Unit) {
+fun HomeScreen(onNextScreen: (Int) -> Unit, jumpToAdd: () -> Unit) {
 
     Column (modifier = Modifier
         .fillMaxSize()
@@ -121,8 +124,8 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
             MakeCard(recipe, onNextScreen)
             Spacer(modifier = Modifier.height(8.dp))
         }
-        Button(onClick = { /*TODO*/ }) {
-
+        Button(onClick = { jumpToAdd() }) {
+            Text(text = "Add new recipe")
         }
     }
 
@@ -130,7 +133,7 @@ fun HomeScreen(onNextScreen: (Int) -> Unit) {
 
 
 @Composable
-fun RecipeScreen(id: Int) {
+fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
     val recipe = recipeArr[id]
     Column (
         modifier = Modifier
@@ -159,12 +162,15 @@ fun RecipeScreen(id: Int) {
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
         Text(text = recipe.description)
+        Button(onClick = { onNextScreen(id) }) {
+            Text(text = "Edit Recipe")
+        }
     }
 }
 
 
 @Composable
-fun AddRecipeScreen(onNextScreen: () -> Unit) {
+fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
     var titleInput by remember { mutableStateOf("") }
     var durationInput by remember { mutableStateOf("") }
     var servingsInput by remember { mutableStateOf("") }
@@ -182,7 +188,11 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
         }
     )
     Column(modifier = Modifier.padding(20.dp)) {
-        Text(text = "Add your recipe", modifier = Modifier, fontSize = 20.sp, )
+        if (id != null) {
+            Text(text = "Edit your recipe", modifier = Modifier, fontSize = 20.sp )
+        } else {
+            Text(text = "Add your recipe", modifier = Modifier, fontSize = 20.sp )
+        }
         imageUri?.let {
             Image(
                 painter = rememberAsyncImagePainter(model = imageUri),
@@ -206,12 +216,20 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
         OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
         OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
         OutlinedTextField(value = singleIngredientInput, onValueChange ={singleIngredientInput = it}, label = {Text("Ingredients:")} )
-        Button(onClick = {allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println("this is the list ingredient ${allIngredients.size}"); singleIngredientInput = "" }){
+        Button(onClick = {allIngredients += singleIngredientInput; singleIngredientInput = "" }){
             Text(text = "Add ingredient")
         }
         OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
-        Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, ingredients = allIngredients, description = descriptionInput)
-        recipeArr += recipe; println("LIST  OF INGREDIENTS ${allIngredients.size}"); onNextScreen() }) {
+        Button(onClick = {
+            if (id != null) {
+                val recipe = recipeArr[id]
+                recipe.title=titleInput; recipe.duration = durationInput; recipe.servings = servingsInput; recipe.ingredients = allIngredients; recipe.description = descriptionInput;
+                onNextScreen()
+            } else {
+                val newRecipe = Recipes(id = 2, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
+                recipeArr += newRecipe; onNextScreen()
+            }
+        }) {
             Text(text = "Add Recipe")
         }
     }
