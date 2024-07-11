@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -37,8 +40,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -181,38 +186,122 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
             }
         }
     )
-    Column(modifier = Modifier.padding(20.dp)) {
-        Text(text = "Add your recipe", modifier = Modifier, fontSize = 20.sp, )
-        imageUri?.let {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUri),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(36.dp)
-            )
-        }
-
-        TextButton(
-            onClick = {
-                galleryLauncher.launch("image/*")
-            }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color(0xFF3EA295))
         ) {
             Text(
-                text = "Pick image"
+                text = "Recipe App",
+                color = Color.White,
+                modifier = Modifier.align(Alignment.Center),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
             )
         }
-        OutlinedTextField(value = titleInput, onValueChange = {titleInput = it}, label = {Text("Recipe name:")})
-        OutlinedTextField(value = durationInput, onValueChange ={durationInput = it}, label = {Text("Duration:")} )
-        OutlinedTextField(value = servingsInput, onValueChange ={servingsInput = it}, label = {Text("Servings:")} )
-        OutlinedTextField(value = singleIngredientInput, onValueChange ={singleIngredientInput = it}, label = {Text("Ingredients:")} )
-        Button(onClick = {allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println("this is the list ingredient ${allIngredients.size}"); singleIngredientInput = "" }){
-            Text(text = "Add ingredient")
-        }
-        OutlinedTextField(value = descriptionInput, onValueChange ={descriptionInput = it}, label = {Text("Description:")} )
-        Button(onClick = { val recipe = Recipes(id =  2, title= titleInput, duration =durationInput, servings=servingsInput, ingredients = allIngredients, description = descriptionInput)
-        recipeArr += recipe; println("LIST  OF INGREDIENTS ${allIngredients.size}"); onNextScreen() }) {
-            Text(text = "Add Recipe")
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Add your recipe",
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif,
+                textAlign = TextAlign.Center
+            )
+            imageUri?.let {
+                Image(
+                    painter = rememberAsyncImagePainter(model = imageUri),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(36.dp)
+                )
+            }
+
+            OutlinedTextField(value = titleInput,
+                onValueChange = { titleInput = it },
+                label = { Text("Recipe name:") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            OutlinedButton(
+                onClick = {
+                    galleryLauncher.launch("image/*")
+                }
+            ) {
+                Text(
+                    text = "Add recipe image", fontWeight = FontWeight.Bold, color = Color.Black
+                )
+            }
+            OutlinedTextField(value = durationInput,
+                onValueChange = { durationInput = it },
+                label = { Text("Duration:") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            OutlinedTextField(value = servingsInput,
+                onValueChange = { servingsInput = it },
+                label = { Text("Servings:") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            OutlinedTextField(value = singleIngredientInput,
+                onValueChange = { singleIngredientInput = it },
+                label = { Text("Ingredients:") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = Color.White,
+                        containerColor = Color(0xFF3EA295)
+                    ),
+                    onClick = {
+                        allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println(
+                        "this is the list ingredient ${allIngredients.size}"
+                    ); singleIngredientInput = ""
+                    }) {
+                    Text(text = "Add +")
+                }
+            }
+
+            OutlinedTextField(value = descriptionInput,
+                onValueChange = { descriptionInput = it },
+                label = { Text("Description:") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            Button(
+                modifier = Modifier.padding(9.dp),
+                colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
+                    containerColor = Color(0xFF3EA295)
+                ),
+                onClick = {
+                    val recipe = Recipes(
+                        id = 2,
+                        title = titleInput,
+                        duration = durationInput,
+                        servings = servingsInput,
+                        ingredients = allIngredients,
+                        description = descriptionInput
+                    )
+                    recipeArr += recipe; println("LIST  OF INGREDIENTS ${allIngredients.size}"); onNextScreen()
+                }) {
+                Text(text = "Add Recipe")
+            }
         }
     }
 
