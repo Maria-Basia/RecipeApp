@@ -27,11 +27,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,8 +83,13 @@ fun App() {
         composable(route = "recipe/{id}") {
             val id = it.arguments?.getString("id")?.toInt()
             if (id != null) {
-                RecipeScreen(id)
+                RecipeScreen(onNextScreen = { navController.navigate("edit/$id") }, id)
             }
+        }
+
+        composable(route = "edit/{id}") {
+            val id = it.arguments?.getString("id")?.toInt()
+            AddRecipeScreen(onNextScreen = { navController.navigate("home") }, id)
         }
 
         composable(route = "add") {
@@ -144,7 +147,7 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
 }
 
 @Composable
-fun RecipeScreen(id: Int) {
+fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
     val recipe = recipeArr[id]
     Column(modifier = Modifier.fillMaxSize().padding()) {
         TopBar()
@@ -176,16 +179,19 @@ fun RecipeScreen(id: Int) {
             for (i in recipe.ingredients) {
                 Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
-            Text(text = recipe.description)
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
+        Text(text = recipe.description)
+        Button(onClick = { onNextScreen(id) }) {
+            Text(text = "Edit Recipe")
         }
+    }
     }
 }
 
 
 @Composable
-fun AddRecipeScreen(onNextScreen: () -> Unit) {
+fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
     var titleInput by remember { mutableStateOf("") }
     var durationInput by remember { mutableStateOf("") }
     var servingsInput by remember { mutableStateOf("") }
@@ -202,19 +208,33 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
             }
         }
     )
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar()
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "Add your recipe",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.SansSerif,
-                textAlign = TextAlign.Center
-            )
+            if (id != null) {
+                Text(
+                    text = "Edit your recipe",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.SansSerif,
+                    textAlign = TextAlign.Center
+                )
+        } else {
+                Text(
+                    text = "Add your recipe",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.SansSerif,
+                    textAlign = TextAlign.Center
+                )
+        }
             imageUri?.let {
                 Image(
                     painter = rememberAsyncImagePainter(model = imageUri),
@@ -295,18 +315,18 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
                     containerColor = Color(0xFF3EA295)
                 ),
                 onClick = {
-                    val recipe = Recipes(
-                        id = 2,
-                        title = titleInput,
-                        duration = durationInput,
-                        servings = servingsInput,
-                        ingredients = allIngredients,
-                        description = descriptionInput
-                    )
-                    recipeArr += recipe; println("LIST  OF INGREDIENTS ${allIngredients.size}"); onNextScreen()
-                }) {
+            if (id != null) {
+                val recipe = recipeArr[id]
+                recipe.title=titleInput; recipe.duration = durationInput; recipe.servings = servingsInput; recipe.ingredients = allIngredients; recipe.description = descriptionInput;
+                onNextScreen()
+            } else {
+                val newRecipe = Recipes(id = 2, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
+                recipeArr += newRecipe; onNextScreen()
+            }
+        }) {
                 Text(text = "Add Recipe")
             }
+
         }
     }
 
@@ -364,7 +384,5 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 fun GreetingPreview() {
     RecipeAppTheme {
 //        App()
-        RecipeScreen(id = 1)
-//       AddRecipeScreen()
     }
 }
