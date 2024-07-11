@@ -181,7 +181,6 @@ fun AddRecipeScreen(onNextScreen: () -> Unit) {
             }
         }
     )
-
     Column {
         Text(text = "Add recipe")
         imageUri?.let {
