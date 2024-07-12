@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -28,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,17 +85,17 @@ fun App() {
         composable(route = "recipe/{id}") {
             val id = it.arguments?.getString("id")?.toInt()
             if (id != null) {
-                RecipeScreen(onNextScreen = { navController.navigate("edit/$id") }, id)
+                RecipeScreen(onNextScreen = { navController.navigate("edit/$id") }, id, onNextScreenHome = { navController.navigate("home") })
             }
         }
 
         composable(route = "edit/{id}") {
             val id = it.arguments?.getString("id")?.toInt()
-            AddRecipeScreen(onNextScreen = { navController.navigate("home") }, id)
+            AddRecipeScreen(onNextScreen = { navController.navigate("home") }, id, onNextScreenHome = { navController.navigate("home") })
         }
 
         composable(route = "add") {
-             AddRecipeScreen(onNextScreen = { navController.navigate("home") })
+             AddRecipeScreen(onNextScreen = { navController.navigate("home") }, onNextScreenHome = { navController.navigate("home") })
         }
 
     }
@@ -102,43 +104,34 @@ fun App() {
 var recipeArr: Array<Recipes> = arrayOf(
     Recipes(0, R.drawable.recipe1,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
-        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing. Serve chilled."
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
     Recipes(1, R.drawable.recipe1,"Spaghetti Bolognese", "40", "4",
         arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
-        "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions, then prepare the Bolognese sauce with minced meat, onions, garlic, and tomatoes."
+        "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions."
     ),
     Recipes(2, R.drawable.recipe1,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
-        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing. Serve chilled."
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
+    ),
+    Recipes(0, R.drawable.recipe1,"Caesar Salad", "30", "4",
+        arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
+    ),
+    Recipes(1, R.drawable.recipe1,"Spaghetti Bolognese", "40", "4",
+        arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
+        "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions"
+    ),
+    Recipes(2, R.drawable.recipe1,"Caesar Salad", "30", "4",
+        arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     )
 )
 
 @Composable
 fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopBar()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp, 20.dp, 20.dp, 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text(
-                text = "My recipes",
-                modifier = Modifier
-                    .padding(bottom = 30.dp),
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-            for (recipe in recipeArr) {
-                if (!recipe.madeDeleted) {
-                    MakeCard(recipe, onNextScreen)
-                    Spacer(modifier = Modifier.height(25.dp))
-                }
-            }
+    Scaffold(
+        floatingActionButton = {
             FloatingActionButton(
                 onClick = onNextScreenAdd,
                 contentColor = Color.White,
@@ -146,12 +139,41 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
             ) {
                 Text(text = "Add +")
             }
+        },
+        content = { innerPadding ->
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopBar()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "My recipes",
+                        modifier = Modifier
+                            .padding(bottom = 30.dp),
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(25.dp)
+                    ) {
+                        items(recipeArr.size) { index ->
+                            MakeCard(recipe = recipeArr[index], onNextScreen = onNextScreen)
+                        }
+                    }
+                }
+            }
         }
-    }
+    )
 }
 
 @Composable
-fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
+fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int, onNextScreenHome:() -> Unit) {
     val recipe = recipeArr[id]
     Column(modifier = Modifier
         .fillMaxSize()
@@ -162,6 +184,12 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
                 .fillMaxWidth()
                 .padding(30.dp)
         ) {
+            Button(onClick = onNextScreenHome, colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+                containerColor = Color.Gray)
+            ) {
+                Text(text = "Back")
+            }
             Text(
                 text = recipe.title,
                 modifier = Modifier
@@ -217,7 +245,7 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
 
 
 @Composable
-fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
+fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome: () -> Unit) {
     var titleInput by remember { mutableStateOf("") }
     var durationInput by remember { mutableStateOf("") }
     var servingsInput by remember { mutableStateOf("") }
@@ -238,6 +266,12 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar()
         Column(modifier = Modifier.padding(20.dp)) {
+            Button(onClick = onNextScreenHome, colors = ButtonDefaults.buttonColors(
+                contentColor = Color.White,
+                containerColor = Color.Gray)
+            ) {
+                Text(text = "Back")
+            }
             if (id != null) {
                 Text(
                     text = "Edit your recipe",
@@ -250,7 +284,7 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null) {
                     textAlign = TextAlign.Center
                 )
         } else {
-                Text(
+            Text(
                     text = "Add your recipe",
                     modifier = Modifier
                         .fillMaxWidth()
