@@ -27,13 +27,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,7 +126,6 @@ var recipeArr: Array<Recipes> = arrayOf(
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     )
-
 )
 
 @Composable
@@ -166,7 +163,9 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(25.dp)
                     ) {
                         items(recipeArr.size) { index ->
-                            MakeCard(recipe = recipeArr[index], onNextScreen = onNextScreen)
+                            if (!recipeArr[index].madeDeleted) {
+                                MakeCard(recipe = recipeArr[index], onNextScreen = onNextScreen)
+                            }
                         }
                     }
                 }
@@ -223,17 +222,26 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int, onNextScreenHome:() -> Un
             for (i in recipe.ingredients) {
                 Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 6.dp))
             }
-        Spacer(modifier = Modifier.height(25.dp))
-        Text(text = "Description:", modifier = Modifier.padding(bottom = 15.dp), fontSize = 20.sp)
-        Text(text = recipe.description)
-        Spacer(modifier = Modifier.height(25.dp))
-        Button(onClick = { onNextScreen(id) }, colors = ButtonDefaults.buttonColors(
-            contentColor = Color.White,
-            containerColor = Color(0xFF3EA295))
-        ) {
-                Text(text = "Edit recipe")
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(text = "Description:", modifier = Modifier.padding(bottom = 15.dp), fontSize = 20.sp)
+            Text(text = recipe.description)
+            Spacer(modifier = Modifier.height(25.dp))
+            Row {
+                Button(onClick = { onNextScreen(id) }, colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
+                    containerColor = Color(0xFF3EA295))
+                ) {
+                    Text(text = "Edit recipe")
+                }
+                Button(onClick = { recipe.madeDeleted = true },
+                    colors = ButtonDefaults.buttonColors(
+                    contentColor = Color.White,
+                    containerColor = Color.Red)
+                ) {
+                    Text(text = "Delete recipe")
+                }
+            }
         }
-    }
     }
 }
 
@@ -371,10 +379,14 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome:
                 onClick = {
             if (id != null) {
                 val recipe = recipeArr[id]
-                recipe.title=titleInput; recipe.duration = durationInput; recipe.servings = servingsInput; recipe.ingredients = allIngredients; recipe.description = descriptionInput;
+                if (titleInput != "") { recipe.title=titleInput };
+                if (durationInput != "") { recipe.duration = durationInput };
+                if (servingsInput != "") { recipe.servings = servingsInput };
+                if (allIngredients.isNotEmpty()) { recipe.ingredients = allIngredients };
+                if (descriptionInput != "") { recipe.description = descriptionInput }
                 onNextScreen()
             } else {
-                val newRecipe = Recipes(id = 2, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
+                val newRecipe = Recipes(id = recipeArr.size, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
                 recipeArr += newRecipe; onNextScreen()
             }
         }) {
@@ -407,7 +419,8 @@ fun TopBar() {
 
 @Composable
 fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
-    return Card(onClick = {onNextScreen(recipe.id)}) {
+    val index = recipeArr.indexOf(recipe)
+    return Card(onClick = {onNextScreen(index)}) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

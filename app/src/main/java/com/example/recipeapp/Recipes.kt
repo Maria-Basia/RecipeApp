@@ -7,7 +7,8 @@ class Recipes (
     var duration: String,
     var servings: String,
     var ingredients: Array<String> = arrayOf("2 lemons", "3 cucumbers", "4 carrots"),
-    var description: String
+    var description: String,
+    var madeDeleted: Boolean = false
 ) {
     fun truncateDescription(): String {
         return if (this.description.length >= 50) {
