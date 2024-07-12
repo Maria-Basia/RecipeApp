@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -100,14 +102,19 @@ fun App() {
 }
 
 var recipeArr: Array<Recipes> = arrayOf(
-    Recipes(0, R.drawable.recipe1,"Test", "60", "2",
-        arrayOf("2 tomatoes, 3 potatoes"),
-        "idkdsffesdfges"
+    Recipes(0, R.drawable.recipe1,"Caesar Salad", "30", "4",
+        arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing. Serve chilled."
     ),
-    Recipes(1, R.drawable.recipe1,"Test 2", "80", "2",
-        arrayOf("3 tomatoes", "2 potatoes"),
-        "idkidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkdsffesdfgeedgfdgidkds"
+    Recipes(1, R.drawable.recipe1,"Spaghetti Bolognese", "40", "4",
+        arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
+        "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions, then prepare the Bolognese sauce with minced meat, onions, garlic, and tomatoes."
+    ),
+    Recipes(2, R.drawable.recipe1,"Caesar Salad", "30", "4",
+        arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
+        "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing. Serve chilled."
     )
+
 )
 
 @Composable
@@ -133,14 +140,12 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
                 MakeCard(recipe, onNextScreen)
                 Spacer(modifier = Modifier.height(25.dp))
             }
-            Button(
+            FloatingActionButton(
                 onClick = onNextScreenAdd,
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                    containerColor = Color(0xFF3EA295)
-                )
+                contentColor = Color.White,
+                containerColor = Color(0xFF3EA295)
             ) {
-                Text(text = "Add recipe")
+                Text(text = "Add +")
             }
         }
     }
@@ -149,12 +154,14 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
 @Composable
 fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
     val recipe = recipeArr[id]
-    Column(modifier = Modifier.fillMaxSize().padding()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding()) {
         TopBar()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp, 10.dp, 10.dp, 10.dp)
+                .padding(30.dp)
         ) {
             Text(
                 text = recipe.title,
@@ -169,21 +176,32 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int) {
             Image(
                 painter = painterResource(id = recipe.image),
                 contentDescription = "Recipe photo",
-                modifier = Modifier.align(Alignment.CenterHorizontally).clip(RoundedCornerShape(10.dp))
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .clip(RoundedCornerShape(10.dp))
             )
             Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
-            Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Ingredients:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
-            for (i in recipe.ingredients) {
-                Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 0.dp))
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp), Arrangement.Center) {
+                Text(text = "Duration: ${recipe.duration} minutes", fontStyle = FontStyle.Italic)
+                Spacer(modifier = Modifier.width(15.dp))
+                Text(text = "Serving size: ${recipe.servings}", fontStyle = FontStyle.Italic)
             }
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(text = "Description:", modifier = Modifier.padding(7.dp), fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(text = "Ingredients:", modifier = Modifier.padding(bottom = 15.dp), fontSize = 20.sp)
+            for (i in recipe.ingredients) {
+                Text(text = "- $i", modifier = Modifier.padding(5.dp, 0.dp, 0.dp, 6.dp))
+            }
+        Spacer(modifier = Modifier.height(25.dp))
+        Text(text = "Description:", modifier = Modifier.padding(bottom = 15.dp), fontSize = 20.sp)
         Text(text = recipe.description)
-        Button(onClick = { onNextScreen(id) }) {
-            Text(text = "Edit Recipe")
+        Spacer(modifier = Modifier.height(25.dp))
+        Button(onClick = { onNextScreen(id) }, colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White,
+            containerColor = Color(0xFF3EA295))
+        ) {
+                Text(text = "Edit recipe")
         }
     }
     }
@@ -377,12 +395,13 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
 }
 
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     RecipeAppTheme {
-//        App()
+        App()
+//        val sampleRecipe = recipeArr[0]
+//        RecipeScreen(onNextScreen = {}, id = sampleRecipe.id)
+
     }
 }
