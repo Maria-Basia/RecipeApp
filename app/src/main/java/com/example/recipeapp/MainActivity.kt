@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.recipeapp.ui.theme.RecipeAppTheme
 
@@ -102,27 +103,27 @@ fun App() {
 }
 
 var recipeArr: Array<Recipes> = arrayOf(
-    Recipes(0, R.drawable.recipe1,"Caesar Salad", "30", "4",
+    Recipes(0, null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(1, R.drawable.recipe1,"Spaghetti Bolognese", "40", "4",
+    Recipes(1, null,"Spaghetti Bolognese", "40", "4",
         arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
         "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions."
     ),
-    Recipes(2, R.drawable.recipe1,"Caesar Salad", "30", "4",
+    Recipes(2, null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(0, R.drawable.recipe1,"Caesar Salad", "30", "4",
+    Recipes(3, null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(1, R.drawable.recipe1,"Spaghetti Bolognese", "40", "4",
+    Recipes(4, null,"Spaghetti Bolognese", "40", "4",
         arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
         "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions"
     ),
-    Recipes(2, R.drawable.recipe1,"Caesar Salad", "30", "4",
+    Recipes(5, null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     )
@@ -202,13 +203,15 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int, onNextScreenHome:() -> Un
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = recipe.image),
-                contentDescription = "Recipe photo",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clip(RoundedCornerShape(10.dp))
-            )
+            recipe.image?.let{
+                AsyncImage(
+                    model = recipe.image,
+                    contentDescription = "Recipe photo",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .clip(RoundedCornerShape(10.dp))
+                )
+            }
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -298,12 +301,12 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome:
                 )
         }
             imageUri?.let {
-                Image(
-                    painter = rememberAsyncImagePainter(model = imageUri),
+                AsyncImage(
+                    model = imageUri,
                     contentDescription = null,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(36.dp)
+                        .size(100.dp)
                 )
             }
 
@@ -377,17 +380,18 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome:
                     containerColor = Color(0xFF3EA295)
                 ),
                 onClick = {
-            if (id != null) {
-                val recipe = recipeArr[id]
-                if (titleInput != "") { recipe.title=titleInput };
-                if (durationInput != "") { recipe.duration = durationInput };
-                if (servingsInput != "") { recipe.servings = servingsInput };
-                if (allIngredients.isNotEmpty()) { recipe.ingredients = allIngredients };
-                if (descriptionInput != "") { recipe.description = descriptionInput }
-                onNextScreen()
-            } else {
-                val newRecipe = Recipes(id = recipeArr.size, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
-                recipeArr += newRecipe; onNextScreen()
+                if (id != null) {
+                    val recipe = recipeArr[id]
+                    if (titleInput != "") { recipe.title=titleInput };
+                    if (imageUri!= null ) {recipe.image = imageUri }
+                    if (durationInput != "") { recipe.duration = durationInput };
+                    if (servingsInput != "") { recipe.servings = servingsInput };
+                    if (allIngredients.isNotEmpty()) { recipe.ingredients = allIngredients };
+                    if (descriptionInput != "") { recipe.description = descriptionInput }
+                    onNextScreen()
+                } else {
+                    val newRecipe = Recipes(id = recipeArr.size, image = imageUri, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
+                     recipeArr += newRecipe; onNextScreen()
             }
         }) {
                 Text(text = "Add Recipe")
@@ -427,7 +431,7 @@ fun MakeCard(recipe: Recipes, onNextScreen: (Int) -> Unit) {
                 .padding(10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(painter = painterResource(id = recipe.image), contentDescription = "Image thumbnail", modifier = Modifier
+                AsyncImage(model = recipe.image, contentDescription = "Image thumbnail", modifier = Modifier
                     .size(60.dp)
                     .clip(
                         RoundedCornerShape(7.dp)

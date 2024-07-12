@@ -1,8 +1,10 @@
 package com.example.recipeapp
 
+import android.net.Uri
+
 class Recipes (
     val id: Int,
-    val image: Int = R.drawable.recipe1,
+    var image: Uri? = null,
     var title: String,
     var duration: String,
     var servings: String,
