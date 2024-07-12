@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,6 +34,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -103,27 +106,27 @@ fun App() {
 }
 
 var recipeArr: Array<Recipes> = arrayOf(
-    Recipes(0, null,"Caesar Salad", "30", "4",
+    Recipes(null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(1, null,"Spaghetti Bolognese", "40", "4",
+    Recipes(null,"Spaghetti Bolognese", "40", "4",
         arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
         "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions."
     ),
-    Recipes(2, null,"Caesar Salad", "30", "4",
+    Recipes( null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(3, null,"Caesar Salad", "30", "4",
+    Recipes( null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     ),
-    Recipes(4, null,"Spaghetti Bolognese", "40", "4",
+    Recipes( null,"Spaghetti Bolognese", "40", "4",
         arrayOf("200g spaghetti", "100g minced meat", "1 onion", "2 cloves garlic", "400g canned tomatoes"),
         "A classic Italian dish that is perfect for family dinners. Cook the spaghetti according to the package instructions"
     ),
-    Recipes(5, null,"Caesar Salad", "30", "4",
+    Recipes( null,"Caesar Salad", "30", "4",
         arrayOf("1 romaine lettuce", "1/4 cup grated Parmesan cheese", "1/2 cup croutons", "Caesar dressing"),
         "A quick and easy Caesar salad. Toss the chopped romaine lettuce with grated Parmesan, croutons, and Caesar dressing."
     )
@@ -229,14 +232,14 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int, onNextScreenHome:() -> Un
             Text(text = "Description:", modifier = Modifier.padding(bottom = 15.dp), fontSize = 20.sp)
             Text(text = recipe.description)
             Spacer(modifier = Modifier.height(25.dp))
-            Row {
+            Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = { onNextScreen(id) }, colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White,
                     containerColor = Color(0xFF3EA295))
                 ) {
                     Text(text = "Edit recipe")
                 }
-                Button(onClick = { recipe.madeDeleted = true },
+                Button(onClick = { recipe.madeDeleted = true; onNextScreenHome() },
                     colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White,
                     containerColor = Color.Red)
@@ -251,13 +254,20 @@ fun RecipeScreen(onNextScreen: (Int) -> Unit, id: Int, onNextScreenHome:() -> Un
 
 @Composable
 fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome: () -> Unit) {
-    var titleInput by remember { mutableStateOf("") }
-    var durationInput by remember { mutableStateOf("") }
-    var servingsInput by remember { mutableStateOf("") }
+
+    val recipe: Recipes = if (id != null) {
+        recipeArr[id]
+    } else {
+        Recipes()
+    }
+
+    var titleInput by remember { mutableStateOf(recipe.title) }
+    var durationInput by remember { mutableStateOf(recipe.duration) }
+    var servingsInput by remember { mutableStateOf(recipe.servings) }
     var singleIngredientInput by remember { mutableStateOf("") }
-    var descriptionInput by remember { mutableStateOf("") }
+    var descriptionInput by remember { mutableStateOf(recipe.description) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var allIngredients by remember { mutableStateOf(arrayOf<String>()) }
+    var allIngredients by remember { mutableStateOf(recipe.ingredients) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -270,134 +280,164 @@ fun AddRecipeScreen(onNextScreen: () -> Unit, id: Int? = null, onNextScreenHome:
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar()
-        Column(modifier = Modifier.padding(20.dp)) {
-            Button(onClick = onNextScreenHome, colors = ButtonDefaults.buttonColors(
-                contentColor = Color.White,
-                containerColor = Color.Gray)
-            ) {
-                Text(text = "Back")
-            }
-            if (id != null) {
-                Text(
-                    text = "Edit your recipe",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif,
-                    textAlign = TextAlign.Center
-                )
-        } else {
-            Text(
-                    text = "Add your recipe",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif,
-                    textAlign = TextAlign.Center
-                )
-        }
-            imageUri?.let {
-                AsyncImage(
-                    model = imageUri,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(100.dp)
-                )
-            }
-
-            OutlinedTextField(value = titleInput,
-                onValueChange = { titleInput = it },
-                label = { Text("Recipe name:") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            OutlinedButton(
-                onClick = {
-                    galleryLauncher.launch("image/*")
-                }
-            ) {
-                Text(
-                    text = "Add recipe image", fontWeight = FontWeight.Bold, color = Color.Black
-                )
-            }
-            OutlinedTextField(value = durationInput,
-                onValueChange = { durationInput = it },
-                label = { Text("Duration:") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            OutlinedTextField(value = servingsInput,
-                onValueChange = { servingsInput = it },
-                label = { Text("Servings:") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            OutlinedTextField(value = singleIngredientInput,
-                onValueChange = { singleIngredientInput = it },
-                label = { Text("Ingredients:") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(
+        Scaffold (
+            content = {innerPadding ->
+                Column(modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(20.dp)
+                    .verticalScroll(
+                        rememberScrollState()
+                    )) {
+                    Button(onClick = onNextScreenHome, colors = ButtonDefaults.buttonColors(
                         contentColor = Color.White,
-                        containerColor = Color(0xFF3EA295)
-                    ),
-                    onClick = {
-                        allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println(
-                        "this is the list ingredient ${allIngredients.size}"
-                    ); singleIngredientInput = ""
-                    }) {
-                    Text(text = "Add +")
+                        containerColor = Color.Gray)
+                    ) {
+                        Text(text = "Back")
+                    }
+                    if (id != null) {
+                        Text(
+                            text = "Edit your recipe",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = FontFamily.SansSerif,
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        Text(
+                            text = "Add your recipe",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = FontFamily.SansSerif,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    imageUri?.let {
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(100.dp)
+                        )
+                    }
+
+                    OutlinedTextField(value = titleInput,
+                        onValueChange = { titleInput = it },
+                        label = { Text("Recipe name:") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            galleryLauncher.launch("image/*")
+                        }
+                    ) {
+                        Text(
+                            text = "Add recipe image", fontWeight = FontWeight.Bold, color = Color.Black
+                        )
+                    }
+                    OutlinedTextField(value = durationInput,
+                        onValueChange = { durationInput = it },
+                        label = { Text("Duration:") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    )
+                    OutlinedTextField(value = servingsInput,
+                        onValueChange = { servingsInput = it },
+                        label = { Text("Servings:") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    )
+                    Text(text = "Ingredients:", modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp))
+                    for (ingredient in allIngredients) {
+                        Row {
+                            Text(
+                                text = ingredient, modifier = Modifier
+                                    .padding(10.dp)
+                            )
+                            TextButton(onClick = {
+                                allIngredients =
+                                    allIngredients.filter { it != ingredient }.toTypedArray()
+                            }) {
+                                Text(text = "Delete")
+                            }
+                        }
+                    }
+                    OutlinedTextField(value = singleIngredientInput,
+                        onValueChange = { singleIngredientInput = it },
+                        label = { Text("Add Ingredients:") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = Color.White,
+                                containerColor = Color(0xFF3EA295)
+                            ),
+                            onClick = {
+                                allIngredients += singleIngredientInput; println("this is the ingredient $singleIngredientInput"); println(
+                                "this is the list ingredient ${allIngredients.size}"
+                            ); singleIngredientInput = ""
+                            }) {
+                            Text(text = "Add +")
+                        }
+                    }
+
+                    OutlinedTextField(value = descriptionInput,
+                        onValueChange = { descriptionInput = it },
+                        label = { Text("Description:") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    )
+                    Button(
+                        modifier = Modifier.padding(9.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = Color.White,
+                            containerColor = Color(0xFF3EA295)
+                        ),
+                        onClick = {
+                            if (id != null) {
+                                if (titleInput != "") { recipe.title=titleInput };
+                                if (imageUri!= null ) {recipe.image = imageUri }
+                                if (durationInput != "") { recipe.duration = durationInput };
+                                if (servingsInput != "") { recipe.servings = servingsInput };
+                                if (allIngredients.isNotEmpty()) { recipe.ingredients = allIngredients };
+                                if (descriptionInput != "") { recipe.description = descriptionInput }
+                                onNextScreen()
+                            } else {
+                                val newRecipe = Recipes(image = imageUri, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
+                                recipeArr += newRecipe; onNextScreen()
+                            }
+                        }) {
+                        if (id != null) {
+                            Text(text = "Edit Recipe")
+                        } else {
+                            Text(text = "Add Recipe")
+                        }
+                    }
+
                 }
             }
+        )
 
-            OutlinedTextField(value = descriptionInput,
-                onValueChange = { descriptionInput = it },
-                label = { Text("Description:") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            Button(
-                modifier = Modifier.padding(9.dp),
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = Color.White,
-                    containerColor = Color(0xFF3EA295)
-                ),
-                onClick = {
-                if (id != null) {
-                    val recipe = recipeArr[id]
-                    if (titleInput != "") { recipe.title=titleInput };
-                    if (imageUri!= null ) {recipe.image = imageUri }
-                    if (durationInput != "") { recipe.duration = durationInput };
-                    if (servingsInput != "") { recipe.servings = servingsInput };
-                    if (allIngredients.isNotEmpty()) { recipe.ingredients = allIngredients };
-                    if (descriptionInput != "") { recipe.description = descriptionInput }
-                    onNextScreen()
-                } else {
-                    val newRecipe = Recipes(id = recipeArr.size, image = imageUri, title = titleInput, duration = durationInput, servings = servingsInput, ingredients = allIngredients, description = descriptionInput)
-                     recipeArr += newRecipe; onNextScreen()
-            }
-        }) {
-                Text(text = "Add Recipe")
-            }
-
-        }
     }
 
 }

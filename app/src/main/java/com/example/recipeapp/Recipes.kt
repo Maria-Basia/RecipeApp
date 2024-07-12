@@ -3,13 +3,12 @@ package com.example.recipeapp
 import android.net.Uri
 
 class Recipes (
-    val id: Int,
     var image: Uri? = null,
-    var title: String,
-    var duration: String,
-    var servings: String,
-    var ingredients: Array<String> = arrayOf("2 lemons", "3 cucumbers", "4 carrots"),
-    var description: String,
+    var title: String = "",
+    var duration: String = "",
+    var servings: String = "",
+    var ingredients: Array<String> = arrayOf(),
+    var description: String = "",
     var madeDeleted: Boolean = false
 ) {
     fun truncateDescription(): String {
