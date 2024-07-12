@@ -163,7 +163,9 @@ fun HomeScreen(onNextScreenAdd: () -> Unit, onNextScreen: (Int) -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(25.dp)
                     ) {
                         items(recipeArr.size) { index ->
-                            MakeCard(recipe = recipeArr[index], onNextScreen = onNextScreen)
+                            if (!recipeArr[index].madeDeleted) {
+                                MakeCard(recipe = recipeArr[index], onNextScreen = onNextScreen)
+                            }
                         }
                     }
                 }
